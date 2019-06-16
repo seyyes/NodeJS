@@ -1,6 +1,6 @@
 var bodyParser = require('body-parser');
 var urlencodedParser = bodyParser.urlencoded({extended: false});
-var data = [{item: 'get milk'}, {item: 'walk dog'}, {item: 'ride horse'}];
+//var data = [{item: 'get milk'}, {item: 'walk dog'}, {item: 'ride horse'}];
 var mongoose = require('mongoose');
 
 
@@ -14,31 +14,40 @@ var todoSchema = new mongoose.Schema({
 });
 
 var Todo = mongoose.model('Todo', todoSchema);
-var itemOne = Todo({item: 'buy flowers'}).save(function(err){
+/*var itemOne = Todo({item: 'buy flowers'}).save(function(err){
   if(err) throw err;
   console.log('item saved');
 });
-
+*/
 
 
 module.exports = function(app){
 
 app.get('/todo', function(request, response){
+  //get data from mongodb and pass it to the view
+  Todo.find({}, function(err, data){
+    if(err) throw err;
     response.render('todo', {todos: data});
+  });
+    
 });
 
 app.post('/todo', urlencodedParser, function(request, response){
-    data.push(request.body);
-    response.render('todo', {todos: data});
-    response.json(data);
+    //get data from the view and add it to mongodb
+    var newTodo = Todo(request.body).save(function(err, data){
+      if(err) throw err;
+      response.json(data);
+
+    });  
 });
 
 app.delete('/todo:item', function(request, response){
-  var index = data.indexOf(request.body);
-    data = data.filter(function(todo){
-      return todo.item.replace(/ /g, "-") !== request.params.item;
-  }); 
-  response.json(data); 
+  //delete the requested item from mongodb
+  Todo.find({item: request.params.item.replace(/\-/g, " ")}).remove(function(err, data){
+    if(err) throw err;
+    response.json(data);
+  });
+   
 });
 
 };
