@@ -5,7 +5,6 @@ var mongoose = require('mongoose');
 
 
 //Connexion à la base de données
-//mongoose.connect('http://127.0.0.1:27017/todoApp');
 mongoose.connect("mongodb://localhost:27017/todoApp", { useNewUrlParser: true });
 
 //create a schema this is like blueprint
@@ -14,7 +13,8 @@ var todoSchema = new mongoose.Schema({
 });
 
 var Todo = mongoose.model('Todo', todoSchema);
-/*var itemOne = Todo({item: 'buy flowers'}).save(function(err){
+/*
+var itemOne = Todo({item: 'buy flowers'}).save(function(err){
   if(err) throw err;
   console.log('item saved');
 });
@@ -38,12 +38,12 @@ app.post('/todo', urlencodedParser, function(request, response){
       if(err) throw err;
       response.json(data);
 
-    });  
+    }); 
 });
 
-app.delete('/todo:item', function(request, response){
+app.delete('/todo/:item', function(request, response){
   //delete the requested item from mongodb
-  Todo.find({item: request.params.item.replace(/\-/g, " ")}).remove(function(err, data){
+  Todo.find({item: request.params.item.replace(/\-/g, " ")}).deleteOne(function(err, data){
     if(err) throw err;
     response.json(data);
   });
